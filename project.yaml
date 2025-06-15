@@ -1,0 +1,94 @@
+project:
+  name: "Smart File Organizer & Archiver"
+  goal: "Automatically organize and categorize files based on their types/extensions into dedicated, nested folders."
+  current_stage_focus: "Initial categorization of common media and document files into type-specific *and* extension-specific sub-folders."
+
+features:
+  - id: "F1c"
+    name: "Nested File Categorization"
+    description: "Scan a specified source directory and move files into subdirectories based on their primary category (e.g., 'Images', 'Videos') and then further into sub-folders based on their exact file extensions (e.g., 'Images/JPG/', 'Videos/MP4/'). Destination folders will be created as needed."
+    details:
+      - "Define a mapping where each file extension points to a primary category folder and implies a sub-folder named after its extension (e.g., '.jpg' -> 'Images' primary category, then 'JPG' sub-folder)."
+      - "Iterate through every file found in the designated unsorted 'source' directory."
+      - "For each file, extract its file extension to determine both its primary category and its specific extension sub-folder."
+      - "Move the file to its corresponding nested category folder (e.g., `base_output_folder/Images/JPG/`). Files with unrecognized extensions will be moved to an 'Others' folder directly."
+      - "Implement checks to ensure all necessary destination folders (primary category and extension-specific) exist; create them if they don't."
+      - "Include basic error handling for scenarios like files already existing or permission issues."
+    tasks:
+      - task_id: "T1.1"
+        name: "Define Nested File Category Mappings"
+        description: "Create a Python dictionary where keys are file extensions (e.g., '.mp4', '.jpg') and values are the desired *primary* folder names (e.g., 'Videos', 'Images'). The script will then automatically create a sub-folder based on the extension itself (e.g., 'MP4', 'JPG'). Ensure common types like MP4, MP3, JPG, WEBP, EPUB, PDF are covered, plus a default for 'Others'."
+        example_mapping_snippets:
+          # Key: file extension, Value: primary category folder name
+          ".mp4": "Videos"
+          ".mkv": "Videos"
+          ".avi": "Videos"
+          ".mp3": "Music"
+          ".wav": "Music"
+          ".flac": "Music"
+          ".jpg": "Images"
+          ".jpeg": "Images"
+          ".png": "Images"
+          ".gif": "Images"
+          ".webp": "Images"
+          ".pdf": "Documents"
+          ".doc": "Documents"
+          ".docx": "Documents"
+          ".txt": "Documents"
+          ".epub": "Ebooks"
+          ".mobi": "Ebooks"
+        concepts_to_apply:
+          - "Python Dictionaries (for key-value mapping)"
+          - "String Data Type & Manipulation (for extensions and folder names, including converting extension to uppercase for sub-folder name)"
+      - task_id: "T1.2"
+        name: "Setup Source and Destination Directories"
+        description: "Define the absolute or relative paths for your 'unsorted files' source directory and the 'organized files' base destination directory. For initial testing, use simple, dedicated folders on your system."
+        concepts_to_apply:
+          - "`os.path` module or `pathlib` module for robust path handling and cross-OS compatibility"
+          - "Variables"
+      - task_id: "T1.3"
+        name: "Iterate and Process Files in Source Directory"
+        description: "Loop through all files in the source directory. For each file, extract its extension and determine its category using your mapping from T1.1. Handle files with unknown extensions by placing them in an 'Others' category."
+        concepts_to_apply:
+          - "`os.listdir()` or `pathlib.iterdir()` (to list directory contents)"
+          - "`os.path.isfile()` or `pathlib.is_file()` (to distinguish files from directories)"
+          - "`os.path.splitext()` or `pathlib.suffix` (to extract the file extension)"
+          - "For Loops (for iteration)"
+      - task_id: "T1.4"
+        name: "Determine and Create Nested Destination Folders"
+        description: "Using the extracted file extension, find its primary category from your mapping (T1.1). Construct the full nested path for the file's final destination (e.g., `base_output_folder/Images/JPG/`). Ensure both the primary category folder and the extension-specific sub-folder exist; create them if they don't."
+        concepts_to_apply:
+          - "Dictionary `.get()` method (for safe lookup, allowing a default 'Others' category)"
+          - "Conditional Statements (`if-else` for category determination or fallback)"
+          - "String manipulation for constructing nested paths"
+          - "`os.makedirs()` or `pathlib.mkdir(parents=True, exist_ok=True)` (to create directories and their parents safely)"
+      - task_id: "T1.5"
+        name: "Move Files Safely to Their Categories"
+        description: "Execute the actual file movement from the source to its newly determined nested categorized destination. Implement basic `try-except` blocks to catch and handle common issues gracefully, such as permission errors or if a file with the same name already exists in the destination (e.g., skip or rename with a suffix like `_copy1`)."
+        concepts_to_apply:
+          - "`shutil.move()` (the primary function for moving files)"
+          - "`try-except` blocks for basic error handling (`FileNotFoundError`, `PermissionError`, `shutil.Error`)"
+          - "String formatting (f-strings) for potential renaming of duplicate files"
+
+python_concepts_to_master_in_this_stage:
+  - "File System Interaction: Practical application of `os`, `shutil`, and `pathlib` for creating, listing, checking, and moving files/directories, including nested structures."
+  - "Data Structures: Effective use of Dictionaries for flexible mappings and configurations."
+  - "Control Flow: Proficient use of `for` loops to iterate, and `if/elif/else` statements for decision-making."
+  - "Error Handling: Implementing basic `try-except` blocks to make your scripts robust against common issues."
+  - "Functions: Organizing your code into well-named functions for better readability, reusability, and modularity."
+
+future_enhancements_roadmap:
+  - **Enhanced Logging System:**
+      - **Objective:** Provide clear and configurable feedback on the script's operations, success, failures, and skipped files.
+      - **Details:**
+          - Implement Python's built-in `logging` module.
+          - Configure different log levels (INFO, WARNING, ERROR, DEBUG) to control verbosity.
+          - Output logs to both the console (for immediate feedback) and a log file (for persistent records).
+          - Record successful file moves, files skipped (e.g., duplicates), and any errors encountered (e.g., permission denied).
+          - Include timestamps for each log entry.
+      - **Concepts:** `logging` module setup (loggers, handlers, formatters), log levels, file I/O for log files.
+  - Configuration File: Externalize category mappings and paths into a JSON or YAML file, making the script easily customizable without code changes.
+  - Scheduling: Integrate with operating system task schedulers (cron on Linux/macOS, Task Scheduler on Windows) or Python libraries like `APScheduler` for automatic, periodic organization runs.
+  - Duplicate Handling: Develop more sophisticated logic to detect and manage duplicate files (e.g., append `_copy1`, move to a dedicated 'Duplicates' folder, or prompt for user action).
+  - Graphical User Interface (GUI): Build a simple GUI using `Tkinter` or `PyQt` for non-technical users to configure and run the organizer.
+  - Command Line Arguments: Use `argparse` to allow flexible input of source/destination paths or specific actions directly from the command line.
